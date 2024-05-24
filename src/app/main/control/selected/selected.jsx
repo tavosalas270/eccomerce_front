@@ -18,6 +18,12 @@ function Selected({title, columns, values}) {
 
   const controlProducts = useSelector((state) => state.product)
 
+  const config = {
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem("token")
+    }
+  }
+
   const {isOpen, onOpen, onClose} = useDisclosure();
 
   const [metodo, setMetodo] = useState("");
@@ -68,12 +74,12 @@ function Selected({title, columns, values}) {
 
   function enviarNuevoCategoryUnit() {
     if (title === "Category") {
-      postCategories(dataSend).then((response) => {
+      postCategories(dataSend, config).then((response) => {
         dispatch(addCategories(response.data))
         onClose()
       }).catch(error => {})
     } else {
-      postUnits(dataSend).then((response) => {
+      postUnits(dataSend, config).then((response) => {
         dispatch(addUnits(response.data))
         onClose()
       }).catch(error => {})
@@ -82,7 +88,7 @@ function Selected({title, columns, values}) {
 
   function enviarCategoryUnitActualizada() {
     if (title === "Category") {
-      updateCategories(dataSend).then((response) => {
+      updateCategories(dataSend, config).then((response) => {
         const newIndicators = controlProducts.listIndicators.map((obj) => {
           if (obj.category_product === dataSelected.description) {
             return {...obj, category_product: dataSend.description};
@@ -95,7 +101,7 @@ function Selected({title, columns, values}) {
         onClose()
       }).catch(error => {})
     } else {
-      updateUnits(dataSend).then((response) => {
+      updateUnits(dataSend, config).then((response) => {
         dispatch(addUnits(response.data))
         onClose()
       }).catch(error => {})
@@ -111,7 +117,7 @@ function Selected({title, columns, values}) {
       cancelButtonText: "Cancelar"
     }).then((result) => {
       if (result.isConfirmed && title === "Category") {
-        deleteCategories(item.id).then((response) => {
+        deleteCategories(item.id,config).then((response) => {
           const newIndicators = controlProducts.listIndicators.filter((obj) => obj.category_product !== item.description)
           dispatch(addCategories(response.data))
           dispatch(addIndicators(newIndicators))
@@ -121,7 +127,7 @@ function Selected({title, columns, values}) {
           });
         }).catch(error => {})
       } else {
-        deleteUnits(item.id).then((response) => {
+        deleteUnits(item.id, config).then((response) => {
           dispatch(addUnits(response.data))
           Swal.fire({
             icon: "success",
@@ -133,14 +139,14 @@ function Selected({title, columns, values}) {
   }
 
   function enviarNuevoIndicator() {
-    postIndicators(dataSend).then((response) => {
+    postIndicators(dataSend, config).then((response) => {
       dispatch(addIndicators(response.data))
       onClose()
     }).catch(error => {})
   }
 
   function enviarIndicatorActualizado() {
-    updateIndicators(dataSend).then((response) => {
+    updateIndicators(dataSend, config).then((response) => {
       dispatch(addIndicators(response.data))
       onClose()
     }).catch(error => {})
@@ -155,7 +161,7 @@ function Selected({title, columns, values}) {
       cancelButtonText: "Cancelar"
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteIndicators(item.id).then((response) => {
+        deleteIndicators(item.id, config).then((response) => {
           dispatch(addIndicators(response.data))
           Swal.fire({
             icon: "success",
@@ -171,18 +177,18 @@ function Selected({title, columns, values}) {
       <Table aria-label="Productos">
         <TableHeader>
           {columns.map((item, index) => (
-            <TableColumn key={index}>{item}</TableColumn>
+            <TableColumn key={index} className='text-center'>{item}</TableColumn>
           ))}
-          <TableColumn>OPTIONS</TableColumn>
+          <TableColumn className='text-center'>OPTIONS</TableColumn>
         </TableHeader>
         {title !== "Indicator" ? (
           <TableBody>
             {values.map((item, index) => (
               <TableRow key={index.toString()}>
-                  <TableCell>{item.id}</TableCell>
-                  <TableCell>{item.description}</TableCell>
+                  <TableCell className='text-center'>{item.id}</TableCell>
+                  <TableCell className='text-center'>{item.description}</TableCell>
                   <TableCell>
-                    <div className='flex w-full gap-2'>
+                    <div className='flex justify-center w-full gap-2'>
                       <Button className='w-32 bg-red-400 font-semibold' onPress={() => deleteCategoryUnit(item)}>Eliminar</Button>
                       <Button className='w-32 bg-blue-400 font-semibold' onPress={() => handleOpenEditCategoryUnit(item, "edit")}>Actualizar</Button>
                     </div>
@@ -194,11 +200,11 @@ function Selected({title, columns, values}) {
           <TableBody>
             {values.map((item, index) => (
               <TableRow key={index.toString()}>
-                  <TableCell>{item.id}</TableCell>
-                  <TableCell>{item.descount_value}</TableCell>
-                  <TableCell>{item.category_product}</TableCell>
+                  <TableCell className='text-center'>{item.id}</TableCell>
+                  <TableCell className='text-center'>{item.descount_value}</TableCell>
+                  <TableCell className='text-center'>{item.category_product}</TableCell>
                   <TableCell>
-                    <div className='flex w-full gap-2'>
+                    <div className='flex justify-center w-full gap-2'>
                       <Button className='w-32 bg-red-400 font-semibold' onPress={() => deleteIndicator(item)}>Eliminar</Button>
                       <Button className='w-32 bg-blue-400 font-semibold' onPress={() => handleOpenEditIndicator(item, "edit")}>Actualizar</Button>
                     </div>

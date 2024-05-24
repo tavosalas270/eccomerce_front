@@ -8,8 +8,6 @@ import { Tabs, Tab } from '@nextui-org/react';
 
 function Control() {
 
-    const dispatch = useDispatch()
-
     const controlProducts = useSelector((state) => state.product)
 
     const [categories, setCategories] = useState([]);
@@ -21,27 +19,6 @@ function Control() {
         setUnits(controlProducts.listUnits)
         setIndicators(controlProducts.listIndicators)
     }, [controlProducts]);
-
-    useEffect(() => {
-        if (controlProducts.listCategories < 1 && controlProducts.listUnits < 1 && controlProducts.listIndicators < 1) {
-            const config = {
-                headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem("token")
-                }
-            }
-            
-            const promiseCategories = getCategories(config)
-            const promiseUnits = getUnits(config)
-            const promiseIndicators = getIndicators(config)
-
-            Promise.all([promiseCategories, promiseUnits, promiseIndicators])
-            .then(([responseCategories, responseUnits, responseIndicators]) => {
-                dispatch(addCategories(responseCategories))
-                dispatch(addUnits(responseUnits))
-                dispatch(addIndicators(responseIndicators))
-            }).catch(error => {})
-        }
-    }, []);
 
   return (
     <div className='flex flex-col w-full h-full p-2'>
