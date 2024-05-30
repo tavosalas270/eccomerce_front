@@ -7,7 +7,7 @@ import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Button} from "@nextui-or
 function NavBar() {
     const pathname = usePathname();
   return (
-    <Navbar className='bg-neutral-300 justify-end'>
+    <Navbar className='bg-neutral-300 justify-end h-0.5/5'>
       <NavbarContent justify="end">
         {!pathname.includes('/login') && (
           <NavbarItem>

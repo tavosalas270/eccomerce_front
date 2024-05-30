@@ -8,7 +8,14 @@ function getAllProducts(config) {
 }
 
 function postProducts(args, config) {
-    return axios.post("http://localhost:8000/api_products_view/products/", config, args).then(res => {
+    return axios.post("http://localhost:8000/api_products_view/products/", args, config).then(res => {
+        const responseData = res.data;
+        return responseData;
+    });
+}
+
+function updateProducts(args, config, id) {
+    return axios.put("http://localhost:8000/api_products_view/products/" + id + "/", args, config).then(res => {
         const responseData = res.data;
         return responseData;
     });
@@ -99,5 +106,5 @@ function deleteIndicators(id, config) {
 }
 
 
-export { getAllProducts, postProducts, getCategories, postCategories, updateCategories, deleteCategories, getUnits, postUnits, 
+export { getAllProducts, postProducts, updateProducts, getCategories, postCategories, updateCategories, deleteCategories, getUnits, postUnits, 
     updateUnits, deleteUnits, getIndicators, postIndicators, updateIndicators, deleteIndicators };

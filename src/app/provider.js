@@ -8,8 +8,12 @@ export function Providers({children}) {
     return (
         <Provider store={store}>
             <NextUIProvider>
-                <NavBar />
-                {children}
+                <div className="h-screen">
+                    <NavBar />
+                    <div className="h-4.5/5">
+                        {children}
+                    </div>
+                </div>
             </NextUIProvider>
         </Provider>
     )

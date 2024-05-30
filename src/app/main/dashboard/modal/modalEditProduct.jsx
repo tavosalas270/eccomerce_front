@@ -1,13 +1,16 @@
 import React, {useState, useEffect} from 'react'
 import { Input, Select, SelectItem, Textarea } from "@nextui-org/react";
 
-function ModalPostProduct({categorias, unidades, sendDataProducts}) {
+function ModalEditProduct({categorias, unidades, dataSelected, sendDataProducts}) {
 
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
+    const defaultUnit = unidades.find(item => item.description === dataSelected.measure_unit)?.id;
+    const defaultCategory = categorias.find(item => item.description === dataSelected.category_product)?.id;
+
+    const [name, setName] = useState(dataSelected.name);
+    const [description, setDescription] = useState(dataSelected.description);
     const [image, setImage] = useState("");
-    const [unit, setUnit] = useState(0);
-    const [category, setCategory] = useState(0);
+    const [unit, setUnit] = useState(defaultUnit);
+    const [category, setCategory] = useState(defaultCategory);
 
     const handleValue = (value, field) => {
         switch (field) {
@@ -37,6 +40,7 @@ function ModalPostProduct({categorias, unidades, sendDataProducts}) {
 
     useEffect(() => {
         const data = {
+            "id": dataSelected.id,
             "name": name,
             "description": description,
             "image": image,
@@ -56,14 +60,14 @@ function ModalPostProduct({categorias, unidades, sendDataProducts}) {
                 {image?.name ? image?.name : "Seleccionar archivo"}
             </label>
         </div>
-        <Select label="Categories" onChange={(e) => handleChange(e.target.value, "category")}>
+        <Select label="Categories" onChange={(e) => handleChange(e.target.value, "category")} defaultSelectedKeys={[defaultCategory.toString()]}>
             {categorias.map((item) => (
                 <SelectItem key={item.id} value={item.id}>
                     {item.description}
                 </SelectItem>
             ))}
         </Select>
-        <Select label="Units" onChange={(e) => handleChange(e.target.value, "unit")}>
+        <Select label="Units" onChange={(e) => handleChange(e.target.value, "unit")} defaultSelectedKeys={[defaultUnit.toString()]}>
             {unidades.map((item) => (
                 <SelectItem key={item.id} value={item.id}>
                     {item.description}
@@ -74,4 +78,4 @@ function ModalPostProduct({categorias, unidades, sendDataProducts}) {
   )
 }
 
-export default ModalPostProduct
+export default ModalEditProduct

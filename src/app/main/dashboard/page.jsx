@@ -1,8 +1,9 @@
 "use client"
 import React, {useState, useEffect} from 'react'
 import { useRouter } from 'next/navigation'
-import { getAllProducts, getCategories, getUnits, getIndicators, postProducts } from '@/models/products';
+import { getAllProducts, getCategories, getUnits, getIndicators, postProducts, updateProducts } from '@/models/products';
 import ModalPostProduct from './modal/modalPostProduct';
+import ModalEditProduct from './modal/modalEditProduct';
 import { addProducts, addCategories, addUnits, addIndicators } from '@/redux/productSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Modal, ModalContent, ModalHeader, 
@@ -26,7 +27,6 @@ function Dashboard() {
 
     const [metodo, setMetodo] = useState("");
     const [dataSelected, setDataSelected] = useState({});
-    const [optionSelected, setOptionSelected] = useState({});
     const [dataSend, setDataSend] = useState({});
     const [dataInvalida, setDataInvalida] = useState(false);
 
@@ -37,16 +37,49 @@ function Dashboard() {
         onOpen();
     }
 
+    const handleOpenEditProducts = (item, metodo) => {
+        setMetodo(metodo)
+        setDataSelected(item)
+        onOpen();
+      }
+
     const sendDataProducts = (data) => {
         setDataSend(data)
     }
 
     function enviarNuevoProducto() {
-        postProducts(dataSend, config).then((response) => {
-            dispatch(addProducts(response.data))
+        const formData = new FormData();
+        formData.append('name', dataSend.name);
+        formData.append('description', dataSend.description);
+        formData.append('image', dataSend.image !== "" ? dataSend.image : "");
+        formData.append('measure_unit', dataSend.measure_unit);
+        formData.append('category_product', dataSend.category_product);
+        postProducts(formData, config).then((response) => {
+            const nuevosProductos = [...listProducts.listProducts, response.data]
+            dispatch(addProducts(nuevosProductos))
             onClose()
         }).catch(error => {})
     }
+
+    function enviarProductoActualizado() {
+        const formData = new FormData();
+        formData.append('name', dataSend.name);
+        formData.append('description', dataSend.description);
+        formData.append('image', dataSend.image !== "" ? dataSend.image : "");
+        formData.append('measure_unit', dataSend.measure_unit);
+        formData.append('category_product', dataSend.category_product);
+        updateProducts(formData, config, dataSend.id).then((response) => {
+            const nuevosProductos = listProducts.listProducts.map((obj) => {
+                if (obj.id === dataSelected.id) {
+                  return dataSend;
+                } else {
+                  return obj;
+                }
+            })
+            dispatch(addProducts(nuevosProductos))
+            onClose()
+        }).catch(error => {})
+      }
 
     useEffect(() => {
         setProducts(listProducts.listProducts)
@@ -73,12 +106,13 @@ function Dashboard() {
 
   return (
     <div className='flex flex-col w-full h-full p-2 gap-y-2'>
-        <Table aria-label="Productos">
+        <Table aria-label="Productos" className='h-4.75/5 overflow-y-auto'>
             <TableHeader>
                 <TableColumn>NAME</TableColumn>
                 <TableColumn>DESCRIPTION</TableColumn>
                 <TableColumn>MEASURE UNIT</TableColumn>
                 <TableColumn>CATEGORY</TableColumn>
+                <TableColumn className='text-center'>OPTIONS</TableColumn>
             </TableHeader>
             <TableBody>
                 {products.map((item, index) => (
@@ -87,11 +121,17 @@ function Dashboard() {
                         <TableCell>{item.description}</TableCell>
                         <TableCell>{item.measure_unit}</TableCell>
                         <TableCell>{item.category_product}</TableCell>
+                        <TableCell>
+                            <div className='flex justify-center w-full gap-2'>
+                                <Button className='w-32 bg-red-400 font-semibold'>Eliminar</Button>
+                                <Button className='w-32 bg-blue-400 font-semibold' onPress={() => handleOpenEditProducts(item, "edit")}>Actualizar</Button>
+                            </div>
+                        </TableCell>
                     </TableRow>
                 ))}
             </TableBody>
         </Table>
-        <div className='flex flex-row justify-end'>
+        <div className='flex flex-row justify-end h-0.25/5'>
             <Button className='w-40 bg-green-400 font-semibold' onClick={() => handleOpenPostProducts("post")}>Añadir Producto</Button>
         </div>
 
@@ -99,10 +139,19 @@ function Dashboard() {
             <ModalContent>
                 <ModalHeader className="flex flex-col gap-1">Producto</ModalHeader>
                 <ModalBody>
-                    <ModalPostProduct categorias={listProducts.listCategories} unidades={listProducts.listUnits} sendDataProducts={sendDataProducts}></ModalPostProduct>
+                    {metodo === "post" ? (
+                        <ModalPostProduct categorias={listProducts.listCategories} unidades={listProducts.listUnits} sendDataProducts={sendDataProducts}></ModalPostProduct>
+                    ):(
+                        <ModalEditProduct categorias={listProducts.listCategories} unidades={listProducts.listUnits} dataSelected={dataSelected} sendDataProducts={sendDataProducts}></ModalEditProduct>
+                    )}  
                 </ModalBody>
                 <ModalFooter>
                     <Button color="danger" variant="light" onPress={onClose}>Close</Button>
+                    {metodo === "post" ? (
+                        <Button className='w-32 bg-blue-400 font-semibold' onPress={enviarNuevoProducto}>Guardar</Button>
+                    ):(
+                        <Button className='w-32 bg-blue-400 font-semibold' onPress={enviarProductoActualizado}>Editar</Button>
+                    )}
                 </ModalFooter>
             </ModalContent>
         </Modal>
