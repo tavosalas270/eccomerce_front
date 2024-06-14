@@ -25,9 +25,8 @@ function Login() {
                 "user":response.data.user,
             }
             Cookies.set("token", response.data.token, { expires: 1 });
-            localStorage.setItem("token", response.data.token)
-            localStorage.setItem("refresh_token", response.data.refresh_token)
-            localStorage.setItem("user", response.data.user)
+            Cookies.set("refresh_token", response.data.refresh_token, { expires: 1 });
+            Cookies.set("user", JSON.stringify(response.data.user), { expires: 1 });
             dispatch(addDataUser(datos))
             router.push('/main/dashboard')
         }).catch((error)=> {})

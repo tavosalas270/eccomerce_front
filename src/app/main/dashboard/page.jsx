@@ -1,19 +1,21 @@
 "use client"
 import React, {useState, useEffect} from 'react'
 import { useRouter } from 'next/navigation'
-import { getAllProducts, getCategories, getUnits, getIndicators, postProducts, updateProducts } from '@/models/products';
+import { getAllProducts, getCategories, getUnits, getIndicators, postProducts, updateProducts, deleteProducts } from '@/models/products';
 import ModalPostProduct from './modal/modalPostProduct';
 import ModalEditProduct from './modal/modalEditProduct';
 import { addProducts, addCategories, addUnits, addIndicators } from '@/redux/productSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Modal, ModalContent, ModalHeader, 
     ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react';
+import Swal from 'sweetalert2';
+import Cookies from 'js-cookie';
 
 function Dashboard() {
 
     const config = {
         headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem("token")
+            'Authorization': 'Bearer ' + Cookies.get("token")
         }
     }
 
@@ -70,8 +72,8 @@ function Dashboard() {
         formData.append('category_product', dataSend.category_product);
         updateProducts(formData, config, dataSend.id).then((response) => {
             const nuevosProductos = listProducts.listProducts.map((obj) => {
-                if (obj.id === dataSelected.id) {
-                  return dataSend;
+                if (obj.id === response.data.id) {
+                  return response.data;
                 } else {
                   return obj;
                 }
@@ -79,7 +81,27 @@ function Dashboard() {
             dispatch(addProducts(nuevosProductos))
             onClose()
         }).catch(error => {})
-      }
+    }
+
+    const deleteProduct = (item) => {
+        Swal.fire({
+            title: "¿Estas seguro de querer borrar este registro?",
+            showCancelButton: true,
+            confirmButtonText: "Eliminar",
+            confirmButtonColor: "rgb(248 113 113)",
+            cancelButtonText: "Cancelar"
+          }).then((result) => {
+            if (result.isConfirmed) {
+                deleteProducts(item.id,config).then((response) => {
+                    dispatch(addProducts(response.data))
+                    Swal.fire({
+                        icon: "success",
+                        title: "Registro eliminado correctamente",
+                    });
+                }).catch(error => {})
+            }
+          });
+    }
 
     useEffect(() => {
         setProducts(listProducts.listProducts)
@@ -123,7 +145,7 @@ function Dashboard() {
                         <TableCell>{item.category_product}</TableCell>
                         <TableCell>
                             <div className='flex justify-center w-full gap-2'>
-                                <Button className='w-32 bg-red-400 font-semibold'>Eliminar</Button>
+                                <Button className='w-32 bg-red-400 font-semibold' onPress={() => deleteProduct(item)}>Eliminar</Button>
                                 <Button className='w-32 bg-blue-400 font-semibold' onPress={() => handleOpenEditProducts(item, "edit")}>Actualizar</Button>
                             </div>
                         </TableCell>

@@ -21,6 +21,13 @@ function updateProducts(args, config, id) {
     });
 }
 
+function deleteProducts(id, config) {
+    return axios.delete("http://localhost:8000/api_products_view/products/" + id, config).then(res => {
+        const responseData = res.data;
+        return responseData;
+    });
+}
+
 function getCategories(config) {
     return axios.get("http://localhost:8000/api_products_view/category_products/", config).then(res => {
         const responseData = res.data;
@@ -106,5 +113,5 @@ function deleteIndicators(id, config) {
 }
 
 
-export { getAllProducts, postProducts, updateProducts, getCategories, postCategories, updateCategories, deleteCategories, getUnits, postUnits, 
+export { getAllProducts, postProducts, updateProducts, deleteProducts, getCategories, postCategories, updateCategories, deleteCategories, getUnits, postUnits, 
     updateUnits, deleteUnits, getIndicators, postIndicators, updateIndicators, deleteIndicators };

@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Modal, ModalContent, ModalHeader, 
   ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react';
 import Swal from 'sweetalert2';
+import Cookies from 'js-cookie';
 
 function Selected({title, columns, values}) {
 
@@ -20,7 +21,7 @@ function Selected({title, columns, values}) {
 
   const config = {
     headers: {
-      'Authorization': 'Bearer ' + localStorage.getItem("token")
+      'Authorization': 'Bearer ' + Cookies.get("token")
     }
   }
 
