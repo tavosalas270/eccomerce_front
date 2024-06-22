@@ -30,9 +30,12 @@ function Dashboard() {
     const [metodo, setMetodo] = useState("");
     const [dataSelected, setDataSelected] = useState({});
     const [dataSend, setDataSend] = useState({});
-    const [dataInvalida, setDataInvalida] = useState(false);
-
+    const [dataValida, setDataValida] = useState(false);
     const [products, setProducts] = useState([]);
+
+    const sendValidForm = (value) => {
+        setDataValida(value)
+    }
 
     const handleOpenPostProducts = (metodo) => {
         setMetodo(metodo)
@@ -53,7 +56,7 @@ function Dashboard() {
         const formData = new FormData();
         formData.append('name', dataSend.name);
         formData.append('description', dataSend.description);
-        formData.append('image', dataSend.image !== "" ? dataSend.image : "");
+        formData.append('image', dataSend.image);
         formData.append('measure_unit', dataSend.measure_unit);
         formData.append('category_product', dataSend.category_product);
         postProducts(formData, config).then((response) => {
@@ -67,7 +70,7 @@ function Dashboard() {
         const formData = new FormData();
         formData.append('name', dataSend.name);
         formData.append('description', dataSend.description);
-        formData.append('image', dataSend.image !== "" ? dataSend.image : "");
+        formData.append('image', dataSend.image);
         formData.append('measure_unit', dataSend.measure_unit);
         formData.append('category_product', dataSend.category_product);
         updateProducts(formData, config, dataSend.id).then((response) => {
@@ -162,18 +165,14 @@ function Dashboard() {
                 <ModalHeader className="flex flex-col gap-1">Producto</ModalHeader>
                 <ModalBody>
                     {metodo === "post" ? (
-                        <ModalPostProduct categorias={listProducts.listCategories} unidades={listProducts.listUnits} sendDataProducts={sendDataProducts}></ModalPostProduct>
+                        <ModalPostProduct categorias={listProducts.listCategories} unidades={listProducts.listUnits} sendDataProducts={sendDataProducts} sendValidForm={sendValidForm}></ModalPostProduct>
                     ):(
-                        <ModalEditProduct categorias={listProducts.listCategories} unidades={listProducts.listUnits} dataSelected={dataSelected} sendDataProducts={sendDataProducts}></ModalEditProduct>
+                        <ModalEditProduct categorias={listProducts.listCategories} unidades={listProducts.listUnits} dataSelected={dataSelected} sendDataProducts={sendDataProducts} sendValidForm={sendValidForm}></ModalEditProduct>
                     )}  
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="danger" variant="light" onPress={onClose}>Close</Button>
-                    {metodo === "post" ? (
-                        <Button className='w-32 bg-blue-400 font-semibold' onPress={enviarNuevoProducto}>Guardar</Button>
-                    ):(
-                        <Button className='w-32 bg-blue-400 font-semibold' onPress={enviarProductoActualizado}>Editar</Button>
-                    )}
+                    <Button className='w-32 bg-danger-300 font-semibold' onPress={onClose}>Close</Button>
+                    <Button isDisabled={!dataValida} className='w-32 bg-blue-400 font-semibold' onPress={metodo === "post" ? enviarNuevoProducto : enviarProductoActualizado}>Guardar</Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>

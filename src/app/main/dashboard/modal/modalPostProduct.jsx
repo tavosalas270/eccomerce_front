@@ -1,76 +1,59 @@
-import React, {useState, useEffect} from 'react'
+import React, {useEffect} from 'react'
+import { useForm } from 'react-hook-form';
 import { Input, Select, SelectItem, Textarea } from "@nextui-org/react";
 
-function ModalPostProduct({categorias, unidades, sendDataProducts}) {
+function ModalPostProduct({categorias, unidades, sendDataProducts, sendValidForm}) {
 
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    const [image, setImage] = useState("");
-    const [unit, setUnit] = useState(0);
-    const [category, setCategory] = useState(0);
-
-    const handleValue = (value, field) => {
-        switch (field) {
-            case "name":
-                setName(value);
-                break;
-            case "description":
-                setDescription(value);
-                break;
-            default:
-                break;
+    const { register, watch, formState: { isValid } } = useForm({
+        defaultValues: {
+            name: "",
+            description: "",
+            image: "",
+            measure_unit: "",
+            category_product: ""
         }
-    }
-
-    const handleChange = (value, field) => {
-        switch (field) {
-            case "category":
-                setCategory(parseInt(value))
-                break;
-            case "unit":
-                setUnit(parseInt(value))
-                break;
-            default:
-                break;
-        }
-    };
+    });
 
     useEffect(() => {
-        const data = {
-            "name": name,
-            "description": description,
-            "image": image,
-            "measure_unit": unit,
-            "category_product": category 
-        }
-        sendDataProducts(data)
-    }, [name, description, image, unit, category]);
+        const dataToSend = {
+            name: watch('name'),
+            description: watch('description'),
+            image: watch('image')[0],
+            measure_unit: watch('measure_unit'),
+            category_product: watch('category_product')
+        };
+        sendDataProducts(dataToSend);
+        sendValidForm(isValid)
+    }, [watch('name'), watch('description'), watch('image'), watch('measure_unit'), watch('category_product'), isValid]);
 
   return (
-    <div className='flex flex-col w-full gap-y-2'>
-        <Input value={name} type='text' label="Name" onChange={(e) => handleValue(e.target.value, "name")} />
-        <Textarea value={description} label="Description" placeholder="Enter your description" className="w-full" onChange={(e) => handleValue(e.target.value, "description")} />
-        <div className="relative p-2 rounded-medium !bg-neutral-100">
-            <input type="file" onChange={(e) => setImage(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-            <label htmlFor="file-input" className="cursor-pointer text-small text-foreground-500">
-                {image?.name ? image?.name : "Seleccionar archivo"}
-            </label>
+    <form>
+        <div className='flex flex-col w-full gap-y-2'>
+            <Input type='text' label="Name" {...register('name', { required: true, maxLength: 20 })} />
+            <Textarea {...register('description', { required: true, maxLength: 100 })} label="Description" placeholder="Enter your description" className="w-full" />
+            <div className="relative p-2 rounded-medium !bg-neutral-100">
+                <input {...register('image', { required: true })} type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <label htmlFor="file-input" className="cursor-pointer text-small text-foreground-500">
+                    {watch('image')[0]?.name ? watch('image')[0]?.name : "Seleccionar archivo"}
+                </label>
+            </div>
+            <Select label="Categories" {...register('category_product', { required: true })}>
+                {categorias.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                        {item.description}
+                    </SelectItem>
+                ))}
+            </Select>
+            <Select label="Units" {...register('measure_unit', { required: true })}>
+                {unidades.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                        {item.description}
+                    </SelectItem>
+                ))}
+            </Select>
         </div>
-        <Select label="Categories" onChange={(e) => handleChange(e.target.value, "category")}>
-            {categorias.map((item) => (
-                <SelectItem key={item.id} value={item.id}>
-                    {item.description}
-                </SelectItem>
-            ))}
-        </Select>
-        <Select label="Units" onChange={(e) => handleChange(e.target.value, "unit")}>
-            {unidades.map((item) => (
-                <SelectItem key={item.id} value={item.id}>
-                    {item.description}
-                </SelectItem>
-            ))}
-        </Select>
-    </div>
+    </form>
+    
   )
 }
 
