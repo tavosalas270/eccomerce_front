@@ -32,7 +32,11 @@ function Selected({title, columns, values}) {
   const [optionSelected, setOptionSelected] = useState({});
   const [dataSend, setDataSend] = useState({});
 
-  const [dataInvalida, setDataInvalida] = useState(false);
+  const [dataValida, setDataValida] = useState(false);
+
+  const sendValidForm = (value) => {
+    setDataValida(value)
+  }
 
   const handleOpenPostCategoryUnit = (metodo) => {
     setMetodo(metodo)
@@ -60,13 +64,6 @@ function Selected({title, columns, values}) {
 
   const sendDataCategoryUnit = (data) => {
     setDataSend(data)
-    if (data.description.length < 1) {
-      setDataInvalida(true)
-    } else if (data.description.length > 50) {
-      setDataInvalida(true)
-    } else {
-      setDataInvalida(false)
-    }
   }
 
   const sendDataIndicators = (data) => {
@@ -223,14 +220,14 @@ function Selected({title, columns, values}) {
        <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-col gap-1">Actualizar {title}</ModalHeader>
+            <ModalHeader className="flex flex-col gap-1">Actualizar {title} {dataSelected.description}</ModalHeader>
             <ModalBody>
               {title !== "Indicator" ? (
                 <>
                   {metodo === "post" ? (
                     <ModalPostCategoryUnit sendDataCategoryUnit={sendDataCategoryUnit} /> 
                   ) : (
-                    <ModalEditCategoryUnit dataSelected={dataSelected} sendDataCategoryUnit={sendDataCategoryUnit} />
+                    <ModalEditCategoryUnit dataSelected={dataSelected} sendDataCategoryUnit={sendDataCategoryUnit} sendValidForm={sendValidForm} />
                   )}
                 </>
                 
@@ -239,7 +236,7 @@ function Selected({title, columns, values}) {
                   {metodo === "post" ? (
                       <ModalPostIndicators categories={controlProducts.listCategories} sendDataIndicators={sendDataIndicators} /> 
                     ) : (
-                      <ModalEditIndicators categories={controlProducts.listCategories} optionSelected={optionSelected} dataSelected={dataSelected} sendDataIndicators={sendDataIndicators} />
+                      <ModalEditIndicators categories={controlProducts.listCategories} optionSelected={optionSelected} dataSelected={dataSelected} sendDataIndicators={sendDataIndicators} sendValidForm={sendValidForm} />
                   )}
                 </>
               )}
@@ -247,9 +244,9 @@ function Selected({title, columns, values}) {
             <ModalFooter>
               <Button color="danger" variant="light" onPress={onClose}>Close</Button>
               {metodo === "post" ? (
-                <Button isDisabled={title !== "Indicator" ? dataInvalida : false} className='w-32 bg-blue-400 font-semibold' onPress={title !== "Indicator" ? enviarNuevoCategoryUnit : enviarNuevoIndicator}>Guardar</Button>
+                <Button isDisabled={!dataValida} className='w-32 bg-blue-400 font-semibold' onPress={title !== "Indicator" ? enviarNuevoCategoryUnit : enviarNuevoIndicator}>Guardar</Button>
               ) : (
-                <Button isDisabled={title !== "Indicator" ? dataInvalida : false} className='w-32 bg-blue-400 font-semibold' onPress={title !== "Indicator" ? enviarCategoryUnitActualizada : enviarIndicatorActualizado}>Enviar</Button>
+                <Button isDisabled={!dataValida} className='w-32 bg-blue-400 font-semibold' onPress={title !== "Indicator" ? enviarCategoryUnitActualizada : enviarIndicatorActualizado}>Enviar</Button>
               )}
             </ModalFooter>
           </>
