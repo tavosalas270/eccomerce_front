@@ -225,7 +225,7 @@ function Selected({title, columns, values}) {
               {title !== "Indicator" ? (
                 <>
                   {metodo === "post" ? (
-                    <ModalPostCategoryUnit sendDataCategoryUnit={sendDataCategoryUnit} /> 
+                    <ModalPostCategoryUnit sendDataCategoryUnit={sendDataCategoryUnit} sendValidForm={sendValidForm} /> 
                   ) : (
                     <ModalEditCategoryUnit dataSelected={dataSelected} sendDataCategoryUnit={sendDataCategoryUnit} sendValidForm={sendValidForm} />
                   )}
@@ -234,7 +234,7 @@ function Selected({title, columns, values}) {
               ):(
                 <>
                   {metodo === "post" ? (
-                      <ModalPostIndicators categories={controlProducts.listCategories} sendDataIndicators={sendDataIndicators} /> 
+                      <ModalPostIndicators categories={controlProducts.listCategories} sendDataIndicators={sendDataIndicators} sendValidForm={sendValidForm} /> 
                     ) : (
                       <ModalEditIndicators categories={controlProducts.listCategories} optionSelected={optionSelected} dataSelected={dataSelected} sendDataIndicators={sendDataIndicators} sendValidForm={sendValidForm} />
                   )}

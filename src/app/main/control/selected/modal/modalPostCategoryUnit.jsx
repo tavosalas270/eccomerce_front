@@ -1,33 +1,60 @@
 import React, {useState, useEffect} from 'react'
+import { useForm } from 'react-hook-form';
 import { Input } from "@nextui-org/react";
 
-function ModalPostCategoryUnit({sendDataCategoryUnit}) {
+function ModalPostCategoryUnit({sendDataCategoryUnit, sendValidForm}) {
     const [description, setDescription] = useState("");
-    const [invalid, setInvalid] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
+    const [valid, setValid] = useState(false);
+    
+    const { register, setError, trigger, formState: { errors } } = useForm({
+      defaultValues: {
+        description: "",
+      }
+    });
 
     useEffect(() => {
-      if (description.length < 1) {
-        setInvalid(true)
-        setErrorMessage("La descripción no puede estar vacia")
-      } else if (description.length > 50) {
-        setInvalid(true)
-        setErrorMessage("La descripción no puede tener mas de 50 caracteres")
-      } else {
-        setInvalid(false)
-        setErrorMessage("")
-      }
+      trigger();
+    }, []);
 
-      const data = {
-        "description": description
+    const handleInputChange = (e) => {
+      const value = e.target.value;
+      setDescription(value)
+      const dataToSend = {
+        description: value,
+      };
+      sendDataCategoryUnit(dataToSend);
+      if (!value.trim()) {
+        setError('description', {
+          type: 'manual',
+          message: "Este campo es requerido",
+        });
+        setValid(false)
+      } else if (value.length < 5) {
+        setError('description', {
+          type: 'manual',
+          message: "La descripción debe tener al menos 5 caracteres",
+        });
+        setValid(false)
+      } else if (value.length > 10) {
+        setError('description', {
+          type: 'manual',
+          message: "La descripción no puede exceder los 10 caracteres",
+        });
+        setValid(false)
+      } else {
+        setError('description', null);
+        setValid(true)
       }
-      sendDataCategoryUnit(data)
-    }, [description]);
+    };
+
+    useEffect(() => {
+      sendValidForm(valid)
+    }, [valid]);
 
   return (
-    <div>
-      <Input value={description} type='text' label="Description" isRequired isInvalid={invalid} errorMessage={errorMessage} onChange={(e) => setDescription(e.target.value)} />
-    </div>
+    <form>
+      <Input {...register('description', { required: "Este campo es requerido" })} onChange={handleInputChange} value={description} type='text' label="Description" isRequired isInvalid={!valid} errorMessage={errors.description ? errors.description.message : null} />
+    </form>
   )
 }
 

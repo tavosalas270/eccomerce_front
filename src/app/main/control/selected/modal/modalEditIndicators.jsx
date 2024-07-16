@@ -4,6 +4,8 @@ import { Input, Select, SelectItem } from "@nextui-org/react";
 
 function ModalEditIndicators({categories, optionSelected, dataSelected, sendDataIndicators, sendValidForm}) {
 
+    const [validDescount, setValidDescount] = useState(false);
+
     const { register, setValue, setError, watch, trigger, formState: { errors } } = useForm({
         defaultValues: {
             descount: dataSelected.descount_value,
@@ -12,21 +14,19 @@ function ModalEditIndicators({categories, optionSelected, dataSelected, sendData
     });
 
     useEffect(() => {
-        if (watch('descount') === undefined) {
-            setError('descount', {
-                type: 'manual',
-                message: "Este campo es requerido",
-            });
-            sendValidForm(false)
-        } else if (watch('descount') <= 0) {
+        trigger();
+    }, []);
+
+    useEffect(() => {
+        if (watch('descount') <= 0) {
             setError('descount', {
                 type: 'manual',
                 message: "El descuento debe ser superior a 0",
             });
-            sendValidForm(false)
+            setValidDescount(false)
         } else {
             setError('descount', null);
-            sendValidForm(true)
+            setValidDescount(true)
         }
         const dataToSend = {
             id: dataSelected.id,
@@ -38,23 +38,23 @@ function ModalEditIndicators({categories, optionSelected, dataSelected, sendData
 
     const [currentDiscount, setCurrentDiscount] = useState(dataSelected.descount_value);
 
-    useEffect(() => {
-        trigger(); // Ejecuta la validación inicial al abrir el componente
-    }, []);
-
     const handleDiscountChange = (event) => {
-        setCurrentDiscount(event.target.value);
-        setValue('descount', event.target.value);
+        setCurrentDiscount(parseInt(event.target.value));
+        setValue('descount', parseInt(event.target.value));
     };
 
     const handleInputChange = (value) => {
         setValue('category', parseInt(value));
     };
 
+    useEffect(() => {
+        sendValidForm(validDescount)
+    }, [validDescount]);
+
   return (
     <form>
         <div className='flex flex-col w-full gap-y-2'>
-            <Input {...register('descount', { required: "Este campo es requerido" })} value={currentDiscount} min={0} type='number' label="Descount" onChange={handleDiscountChange} errorMessage={errors.descount ? errors.descount.message : null} />
+            <Input {...register('descount', { validate: value => Number(value) > 0 || "El descuento debe ser superior a 0" })} value={currentDiscount} isInvalid={validDescount === false} min={0} type='number' label="Descount" onChange={handleDiscountChange} errorMessage={errors.descount ? errors.descount.message : null} />
             <Select {...register('category', { required: "Este campo es requerido" })} label="Categories" defaultSelectedKeys={[(optionSelected.id).toString()]}>
                 {categories.map((item) => (
                     <SelectItem key={item.id} value={item.id} onClick={() => handleInputChange(item.id)}>
